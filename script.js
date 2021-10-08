@@ -45,13 +45,7 @@ svg.append("text")
 let type = document.querySelector("#group-by").value
 let descending = true
 
-function update(data, type, descending) {
-    if (descending) {
-        data = data.sort((a, b) => b[type] - a[type])
-    }
-    else {
-        data = data.sort((a, b) => a[type] - b[type])
-    }
+function update(data, type) {
 
     xScale.domain(data.map(d => d.company))
     yScale.domain([0, d3.max(data, d => d[type])])
@@ -79,7 +73,7 @@ function update(data, type, descending) {
         .transition()
         .duration(1000)
         .call(xAxis)
-        
+
     svg.selectAll(".axis.y-axis")
         .transition()
         .duration(1000)
@@ -94,20 +88,33 @@ function update(data, type, descending) {
                 return "Billion USD"
             }
         })
-        
+
 }
 
 d3.csv('coffee-house-chains.csv', d3.autoType).then(data => {
     console.log(data)
-    update(data, type, descending)
+    data = data.sort((a, b) => b[type] - a[type])
+    update(data, type)
 
     d3.select("#group-by").on('change', () => {
         type = document.querySelector("#group-by").value
-        update(data, type, descending)
+        if (descending) {
+            data = data.sort((a, b) => b[type] - a[type])
+        }
+        else {
+            data = data.sort((a, b) => a[type] - b[type])
+        }
+        update(data, type)
     })
 
     d3.select("#sort").on('click', () => {
         descending = !descending
-        update(data, type, descending)
+        if (descending) {
+            data = data.sort((a, b) => b[type] - a[type])
+        }
+        else {
+            data = data.sort((a, b) => a[type] - b[type])
+        }
+        update(data, type)
     })
 })
